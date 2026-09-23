@@ -1,0 +1,25 @@
+{
+  "name": "youtube-automation-os",
+  "version": "2.0.0",
+  "description": "Universal YouTube Video Automation Operating System for Any Niche",
+  "main": "index.js",
+  "scripts": {
+    "setup": "python3 scripts/setup_channel.py",
+    "voice": "node scripts/generate_neural_child_voice.js",
+    "test": "echo \"Ready\" && exit 0"
+  },
+  "keywords": [
+    "youtube-automation",
+    "ai-video",
+    "faceless-youtube",
+    "text-to-speech",
+    "ffmpeg",
+    "vidiq-seo"
+  ],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "dependencies": {
+    "msedge-tts": "^2.0.7"
+  }
+}

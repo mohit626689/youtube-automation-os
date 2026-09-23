@@ -1,0 +1,31 @@
+# Credentials & Sensitive Tokens (STRICT EXCLUSION)
+client_secrets.json
+token.json
+*.key
+*.pem
+*.env
+.env.*
+credentials/
+
+# Local Channel State & Schedule State
+schedule_state.json
+
+# Rendered Media Files & Exports
+episodes/
+*.mp4
+*.wav
+*.mp3
+*.aiff
+*.zip
+dist/
+dist_README.md
+
+# Virtual Environments & Dependencies
+venv/
+.venv/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+*.log
+tmp_tts/

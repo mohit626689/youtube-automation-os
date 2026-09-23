@@ -1,0 +1,260 @@
+{
+  "channel": {
+    "name": "ABC Zoo TV",
+    "handle": "@ABCZooTv",
+    "target_demographic": "Toddlers and Preschoolers (Ages 1-5)",
+    "coppa_compliant": true,
+    "default_category": "27",
+    "default_language": "en"
+  },
+  "aesthetic_engine": {
+    "style_tokens": "3D Pixar and claymation style, adorable stylized cute baby animal, huge expressive sparkling glass eyes, friendly warm smile, soft rounded geometry, smooth tactile silicone clay texture, bright pastel studio lighting, rim lighting, 8k resolution, cinematic depth of field, vibrant colorful background",
+    "aspect_ratios": {
+      "long_form": "16:9",
+      "shorts": "9:16",
+      "thumbnail": "16:9"
+    },
+    "thumbnail_contrast_colors": ["#FFD54F", "#29B6F6", "#FF5252", "#66BB6A", "#FFA726"]
+  },
+  "audio_engine": {
+    "bpm_range": [105, 118],
+    "instrumentation": ["Acoustic Ukulele", "Marimba", "Glockenspiel", "Bouncy Bass", "Handclaps"],
+    "voice_style": "Warm, cheerful, articulate preschool teacher voice, soprano, high clarity"
+  },
+  "characters": {
+    "A": {
+      "name": "Allie",
+      "animal": "Alligator",
+      "color": "Mint Green",
+      "hex": "#66BB6A",
+      "phonics_sound": "/a/",
+      "primary_objects": ["Apple", "Accordion", "Airplane", "Astronaut"],
+      "personality": "Playful, enthusiastic jumper who loves big juicy red apples"
+    },
+    "B": {
+      "name": "Barnaby",
+      "animal": "Bear",
+      "color": "Honey Gold",
+      "hex": "#FFA726",
+      "phonics_sound": "/b/",
+      "primary_objects": ["Bubbles", "Blueberries", "Ball", "Boat"],
+      "personality": "Gentle, bubble-loving cuddly bear"
+    },
+    "C": {
+      "name": "Coco",
+      "animal": "Cat",
+      "color": "Soft Peach",
+      "hex": "#FF8A65",
+      "phonics_sound": "/k/",
+      "primary_objects": ["Cookie", "Crayons", "Cupcake", "Camera"],
+      "personality": "Curious, creative kitten who loves coloring and baking"
+    },
+    "D": {
+      "name": "Danny",
+      "animal": "Duck",
+      "color": "Lemon Yellow",
+      "hex": "#FFEE58",
+      "phonics_sound": "/d/",
+      "primary_objects": ["Drum", "Daisy", "Donut", "Dinosaur"],
+      "personality": "Rhythmic, cheerful duckling who plays musical drums"
+    },
+    "E": {
+      "name": "Ellie",
+      "animal": "Elephant",
+      "color": "Lavender Gray",
+      "hex": "#B39DDB",
+      "phonics_sound": "/e/",
+      "primary_objects": ["Egg", "Engine", "Envelope", "Echo"],
+      "personality": "Kind, helpful baby elephant with giant gentle ears"
+    },
+    "F": {
+      "name": "Felix",
+      "animal": "Fox",
+      "color": "Burnt Tangerine",
+      "hex": "#FF7043",
+      "phonics_sound": "/f/",
+      "primary_objects": ["Flute", "Feather", "Flower", "Frog"],
+      "personality": "Quick, playful fox who loves gentle musical flutes"
+    },
+    "G": {
+      "name": "Gigi",
+      "animal": "Giraffe",
+      "color": "Warm Goldenrod",
+      "hex": "#FFCA28",
+      "phonics_sound": "/g/",
+      "primary_objects": ["Guitar", "Grapes", "Garden", "Glasses"],
+      "personality": "Tall, graceful giraffe who strums miniature guitars"
+    },
+    "H": {
+      "name": "Henry",
+      "animal": "Hippo",
+      "color": "Powder Blue",
+      "hex": "#4FC3F7",
+      "phonics_sound": "/h/",
+      "primary_objects": ["Hat", "Heart", "Helicopter", "Honey"],
+      "personality": "Bubbly hippo with a heart-shaped nose who wears fancy hats"
+    },
+    "I": {
+      "name": "Iggy",
+      "animal": "Iguana",
+      "color": "Emerald Green",
+      "hex": "#26A69A",
+      "phonics_sound": "/i/",
+      "primary_objects": ["Ice cream", "Igloo", "Island", "Insect"],
+      "personality": "Adventurous little lizard who enjoys delicious frozen treats"
+    },
+    "J": {
+      "name": "Jasper",
+      "animal": "Jaguar",
+      "color": "Spotted Amber",
+      "hex": "#FFB300",
+      "phonics_sound": "/j/",
+      "primary_objects": ["Juice", "Jingle bell", "Jump rope", "Jelly"],
+      "personality": "Energetic, bouncy cub who loves jumping rope and fruity juice"
+    },
+    "K": {
+      "name": "Kiki",
+      "animal": "Koala",
+      "color": "Silver Gray",
+      "hex": "#B0BEC5",
+      "phonics_sound": "/k/",
+      "primary_objects": ["Kite", "Kazoo", "Key", "Kangaroo"],
+      "personality": "Sweet, cuddly koala who flies colorful kites in the park"
+    },
+    "L": {
+      "name": "Leo",
+      "animal": "Lion",
+      "color": "Butterscotch Gold",
+      "hex": "#FFB74D",
+      "phonics_sound": "/l/",
+      "primary_objects": ["Lollipop", "Lemon", "Leaf", "Lantern"],
+      "personality": "Friendly baby lion with a fluffy soft mane who loves sweets"
+    },
+    "M": {
+      "name": "Milo",
+      "animal": "Monkey",
+      "color": "Warm Cocoa",
+      "hex": "#8D6E63",
+      "phonics_sound": "/m/",
+      "primary_objects": ["Mango", "Moon", "Mitten", "Music"],
+      "personality": "Playful, swinging little monkey who enjoys bedtime moon gazing"
+    },
+    "N": {
+      "name": "Nala",
+      "animal": "Narwhal",
+      "color": "Aquamarine",
+      "hex": "#4DB6AC",
+      "phonics_sound": "/n/",
+      "primary_objects": ["Nest", "Nut", "Net", "Notebook"],
+      "personality": "Magical unicorn-of-the-sea who loves writing in notebooks"
+    },
+    "O": {
+      "name": "Ollie",
+      "animal": "Owl",
+      "color": "Tawny Ochre",
+      "hex": "#D4E157",
+      "phonics_sound": "/o/",
+      "primary_objects": ["Orange", "Octopus", "Origami", "Overalls"],
+      "personality": "Wise, bubbly night owl who wears cute denim overalls"
+    },
+    "P": {
+      "name": "Pip",
+      "animal": "Penguin",
+      "color": "Midnight Blue & White",
+      "hex": "#3949AB",
+      "phonics_sound": "/p/",
+      "primary_objects": ["Paintbrush", "Pizza", "Pumpkin", "Puppy"],
+      "personality": "Waddling, artistic penguin painter who loves pizza slices"
+    },
+    "Q": {
+      "name": "Quinn",
+      "animal": "Quail",
+      "color": "Plum Purple",
+      "hex": "#8E24AA",
+      "phonics_sound": "/kw/",
+      "primary_objects": ["Quilt", "Queen crown", "Question", "Quick"],
+      "personality": "Dainty little quail with a crown feather who asks curious questions"
+    },
+    "R": {
+      "name": "Rosie",
+      "animal": "Rabbit",
+      "color": "Cotton Candy Pink",
+      "hex": "#F48FB1",
+      "phonics_sound": "/r/",
+      "primary_objects": ["Rainbow", "Radio", "Rocket", "Rose"],
+      "personality": "Hopping, cheerful bunny who chases rainbows in the garden"
+    },
+    "S": {
+      "name": "Sammy",
+      "animal": "Sloth",
+      "color": "Sand Khaki",
+      "hex": "#D7CCC8",
+      "phonics_sound": "/s/",
+      "primary_objects": ["Sun", "Star", "Strawberry", "Submarine"],
+      "personality": "Peaceful, smiling slow friend who loves warm sunshine and berries"
+    },
+    "T": {
+      "name": "Toby",
+      "animal": "Tiger",
+      "color": "Flame Orange",
+      "hex": "#FF6E40",
+      "phonics_sound": "/t/",
+      "primary_objects": ["Train", "Trombone", "Tambourine", "Tulip"],
+      "personality": "Musical tiger cub who drives the wooden zoo toy train"
+    },
+    "U": {
+      "name": "Uma",
+      "animal": "Unicorn",
+      "color": "Pearl White & Rainbow",
+      "hex": "#E1BEE7",
+      "phonics_sound": "/u/",
+      "primary_objects": ["Umbrella", "Ukulele", "Universe"],
+      "personality": "Sparkling fantasy mascot who brings rain showers of joy"
+    },
+    "V": {
+      "name": "Vicky",
+      "animal": "Viper",
+      "color": "Lime Green",
+      "hex": "#AEEA00",
+      "phonics_sound": "/v/",
+      "primary_objects": ["Violin", "Van", "Volcano", "Vegetables"],
+      "personality": "Cute cartoon friendly snake who drives a vegetable delivery van"
+    },
+    "W": {
+      "name": "Wally",
+      "animal": "Whale",
+      "color": "Deep Ocean Teal",
+      "hex": "#00897B",
+      "phonics_sound": "/w/",
+      "primary_objects": ["Watermelon", "Windmill", "Wagon", "Watch"],
+      "personality": "Gigantic, gentle whale who loves juicy watermelon slices"
+    },
+    "X": {
+      "name": "Xavier",
+      "animal": "X-ray Fish",
+      "color": "Translucent Cyan",
+      "hex": "#80DEEA",
+      "phonics_sound": "/ks/",
+      "primary_objects": ["Xylophone", "X-ray", "Fox", "Box"],
+      "personality": "Sparkling glowing underwater fish who plays glowing xylophone bars"
+    },
+    "Y": {
+      "name": "Yana",
+      "animal": "Yak",
+      "color": "Chestnut Brown",
+      "hex": "#6D4C41",
+      "phonics_sound": "/y/",
+      "primary_objects": ["Yo-yo", "Yogurt", "Yacht", "Yarn"],
+      "personality": "Fluffy mountain yak who plays with trick yo-yos and eats berry yogurt"
+    },
+    "Z": {
+      "name": "Ziggy",
+      "animal": "Zebra",
+      "color": "Chalk White & Charcoal",
+      "hex": "#424242",
+      "phonics_sound": "/z/",
+      "primary_objects": ["Zipper", "Zigzag", "Zucchini", "Zoo"],
+      "personality": "Energetic parade leader with striped socks who loves dancing zigzags"
+    }
+  }
+}
