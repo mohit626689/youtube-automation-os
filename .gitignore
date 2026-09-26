@@ -17,6 +17,8 @@ episodes/
 *.mp3
 *.aiff
 *.zip
+*.jpg
+*.png
 dist/
 dist_README.md
 

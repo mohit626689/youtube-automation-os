@@ -434,7 +434,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         
     return ass_path
 
-def assemble_animated_video(episode_dir, output_format="landscape", theme_index=0):
+def assemble_animated_video(episode_dir, output_format="landscape", theme_index=0, engine="hyperframes"):
     episode_dir = Path(episode_dir)
     ffmpeg_bin = check_ffmpeg()
     theme = SUBTITLE_THEMES[theme_index % len(SUBTITLE_THEMES)]
@@ -526,7 +526,16 @@ def assemble_animated_video(episode_dir, output_format="landscape", theme_index=
     spotlight_png = episode_dir / "spotlight_pointer.png"
     generate_interactive_spotlight_png(spotlight_png)
     
-    # 9. Build Multi-Layer Video Assembly Pipeline
+    # 8.5. HyperFrames 60fps Butter-Smooth Rendering Engine
+    if engine == "hyperframes":
+        try:
+            from render_hyperframes_episode import render_episode_with_hyperframes
+            print(f"🚀 Launching HyperFrames 60fps Butter-Smooth Engine for {output_format.upper()}...")
+            return render_episode_with_hyperframes(episode_dir, output_format=output_format, quality="looks", fps=60 if not is_shorts else 30)
+        except Exception as e:
+            print(f"⚠️ HyperFrames engine warning ({e}). Falling back to FFmpeg compositor...")
+    
+    # 9. Build Multi-Layer Video Assembly Pipeline (FFmpeg fallback)
     out_video = episode_dir / f"final_animated_{output_format}.mp4"
     w, h = (1080, 1920) if is_shorts else (1920, 1080)
     
@@ -545,55 +554,115 @@ def assemble_animated_video(episode_dir, output_format="landscape", theme_index=
     inputs = []
     filter_parts = []
     
-    # Scene 1: Camera gentle zoom-in
-    inputs.extend(["-loop", "1", "-t", str(durations[0]), "-i", str(scenes[0])])
-    filter_parts.append(
-        f"[0:v]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
-        f"zoompan=z='min(zoom+0.0008,1.15)':d={int(durations[0]*fps)}:s={w}x{h}:fps={fps}[s0];"
-    )
-    
-    # Scene 2: Camera gentle pan-zoom
-    s2 = scenes[1] if len(scenes) > 1 else scenes[0]
-    inputs.extend(["-loop", "1", "-t", str(durations[1]), "-i", str(s2)])
-    filter_parts.append(
-        f"[1:v]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
-        f"zoompan=z='if(eq(on,0),1.14,max(1.0,zoom-0.0008))':d={int(durations[1]*fps)}:s={w}x{h}:fps={fps}[s1];"
-    )
-    
-    # Scene 3: Camera celebrate zoom
-    s3 = scenes[2] if len(scenes) > 2 else scenes[0]
-    inputs.extend(["-loop", "1", "-t", str(durations[2]), "-i", str(s3)])
-    filter_parts.append(
-        f"[2:v]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
-        f"zoompan=z='min(zoom+0.0009,1.18)':d={int(durations[2]*fps)}:s={w}x{h}:fps={fps}[s2];"
-    )
-    
-    # Concatenate 3 camera movements
-    filter_parts.append("[s0][s1][s2]concat=n=3:v=1:a=0[base_video];")
-    
-    # Input 3: Floating Top Letter Badge PNG
-    inputs.extend(["-loop", "1", "-t", str(total_duration), "-i", str(badge_png)])
-    badge_x = "(W-w)/2" if is_shorts else "70"
-    badge_y = "140+14*sin(t*3.5)" if is_shorts else "55+12*sin(t*3.5)"
-    filter_parts.append(f"[base_video][3:v]overlay=x='{badge_x}':y='{badge_y}':shortest=1[video_with_badge];")
-    
-    # Input 4: Interactive Game Spotlight Pop-up (Active during Scene 2 Game at Line 5)
-    spot_start = round(voice_segs[5]["start"], 2)
-    spot_end = round(voice_segs[6]["start"] + 0.3, 2)
-    inputs.extend(["-loop", "1", "-t", str(total_duration), "-i", str(spotlight_png)])
-    spot_x = "(W-w)/2 + 20*sin(t*5)"
-    spot_y = "(H-h)/2 + 25*cos(t*4)"
-    filter_parts.append(
-        f"[video_with_badge][4:v]overlay=x='{spot_x}':y='{spot_y}':enable='between(t,{spot_start},{spot_end})':shortest=1[video_with_spotlight];"
-    )
-    
-    # Overlay Animated Subtitles
-    ass_escaped = str(ass_path).replace("\\", "/").replace(":", "\\:")
-    filter_parts.append(f"[video_with_spotlight]ass='{ass_escaped}'[vfinal]")
-    
-    # Input 5: Full Soundtrack (Voice + SFX + Music)
-    inputs.extend(["-i", str(final_audio)])
-    audio_idx = 5
+    if is_shorts:
+        # Professional Triple-Tier Shorts Layout:
+        # Blurred full 1080x1920 background + Crisp 1040x585 centered main stage with white border + Top title header
+        # Scene 1:
+        inputs.extend(["-loop", "1", "-t", str(durations[0]), "-i", str(scenes[0])])
+        filter_parts.append(
+            f"[0:v]split[bg_in_0][fg_in_0];"
+            f"[bg_in_0]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=25:5,eq=brightness=-0.08:saturation=1.2[bg_0];"
+            f"[fg_in_0]scale=1040:585,zoompan=z='min(zoom+0.0006,1.08)':d={int(durations[0]*fps)}:s=1040x585:fps={fps}[fg_0];"
+            f"[bg_0][fg_0]overlay=20:480[stage_0];"
+            f"[stage_0]drawbox=x=16:y=476:w=1048:h=593:color=0xFFFFFF@0.9:t=6[box_0];"
+            f"[box_0]drawtext=font='Arial Rounded MT Bold':text='LETTER {letter} PHONICS':fontsize=64:fontcolor=0xFFD700:bordercolor=0x1A237E:borderw=10:x=(w-text_w)/2:y=240[t1_0];"
+            f"[t1_0]drawtext=font='Chalkboard SE':text='{char_name} the {animal_name} & The {obj_name}':fontsize=48:fontcolor=0xFFFFFF:bordercolor=0x2E0854:borderw=8:x=(w-text_w)/2:y=340[s0];"
+        )
+        
+        # Scene 2:
+        s2 = scenes[1] if len(scenes) > 1 else scenes[0]
+        inputs.extend(["-loop", "1", "-t", str(durations[1]), "-i", str(s2)])
+        filter_parts.append(
+            f"[1:v]split[bg_in_1][fg_in_1];"
+            f"[bg_in_1]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=25:5,eq=brightness=-0.08:saturation=1.2[bg_1];"
+            f"[fg_in_1]scale=1040:585,zoompan=z='if(eq(on,0),1.07,max(1.0,zoom-0.0006))':d={int(durations[1]*fps)}:s=1040x585:fps={fps}[fg_1];"
+            f"[bg_1][fg_1]overlay=20:480[stage_1];"
+            f"[stage_1]drawbox=x=16:y=476:w=1048:h=593:color=0xFFFFFF@0.9:t=6[box_1];"
+            f"[box_1]drawtext=font='Arial Rounded MT Bold':text='LETTER {letter} PHONICS':fontsize=64:fontcolor=0xFFD700:bordercolor=0x1A237E:borderw=10:x=(w-text_w)/2:y=240[t1_1];"
+            f"[t1_1]drawtext=font='Chalkboard SE':text='{char_name} the {animal_name} & The {obj_name}':fontsize=48:fontcolor=0xFFFFFF:bordercolor=0x2E0854:borderw=8:x=(w-text_w)/2:y=340[s1];"
+        )
+        
+        # Scene 3:
+        s3 = scenes[2] if len(scenes) > 2 else scenes[0]
+        inputs.extend(["-loop", "1", "-t", str(durations[2]), "-i", str(s3)])
+        filter_parts.append(
+            f"[2:v]split[bg_in_2][fg_in_2];"
+            f"[bg_in_2]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=25:5,eq=brightness=-0.08:saturation=1.2[bg_2];"
+            f"[fg_in_2]scale=1040:585,zoompan=z='min(zoom+0.0006,1.08)':d={int(durations[2]*fps)}:s=1040x585:fps={fps}[fg_2];"
+            f"[bg_2][fg_2]overlay=20:480[stage_2];"
+            f"[stage_2]drawbox=x=16:y=476:w=1048:h=593:color=0xFFFFFF@0.9:t=6[box_2];"
+            f"[box_2]drawtext=font='Arial Rounded MT Bold':text='LETTER {letter} PHONICS':fontsize=64:fontcolor=0xFFD700:bordercolor=0x1A237E:borderw=10:x=(w-text_w)/2:y=240[t1_2];"
+            f"[t1_2]drawtext=font='Chalkboard SE':text='{char_name} the {animal_name} & The {obj_name}':fontsize=48:fontcolor=0xFFFFFF:bordercolor=0x2E0854:borderw=8:x=(w-text_w)/2:y=340[s2];"
+        )
+        
+        filter_parts.append("[s0][s1][s2]concat=n=3:v=1:a=0[base_video];")
+        
+        # Interactive Game Spotlight Pop-up (Active during Scene 2 Game at Line 5)
+        spot_start = round(voice_segs[5]["start"], 2)
+        spot_end = round(voice_segs[6]["start"] + 0.3, 2)
+        inputs.extend(["-loop", "1", "-t", str(total_duration), "-i", str(spotlight_png)])
+        spot_x = "(W-w)/2 + 20*sin(t*5)"
+        spot_y = "480 + (585-h)/2 + 25*cos(t*4)"
+        filter_parts.append(
+            f"[base_video][3:v]overlay=x='{spot_x}':y='{spot_y}':enable='between(t,{spot_start},{spot_end})':shortest=1[video_with_spotlight];"
+        )
+        
+        ass_escaped = str(ass_path).replace("\\", "/").replace(":", "\\:")
+        filter_parts.append(f"[video_with_spotlight]ass='{ass_escaped}'[vfinal]")
+        
+        inputs.extend(["-i", str(final_audio)])
+        audio_idx = 4
+    else:
+        # Standard 16:9 Landscape Layout
+        # Scene 1: Camera gentle zoom-in
+        inputs.extend(["-loop", "1", "-t", str(durations[0]), "-i", str(scenes[0])])
+        filter_parts.append(
+            f"[0:v]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
+            f"zoompan=z='min(zoom+0.0008,1.15)':d={int(durations[0]*fps)}:s={w}x{h}:fps={fps}[s0];"
+        )
+        
+        # Scene 2: Camera gentle pan-zoom
+        s2 = scenes[1] if len(scenes) > 1 else scenes[0]
+        inputs.extend(["-loop", "1", "-t", str(durations[1]), "-i", str(s2)])
+        filter_parts.append(
+            f"[1:v]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
+            f"zoompan=z='if(eq(on,0),1.14,max(1.0,zoom-0.0008))':d={int(durations[1]*fps)}:s={w}x{h}:fps={fps}[s1];"
+        )
+        
+        # Scene 3: Camera celebrate zoom
+        s3 = scenes[2] if len(scenes) > 2 else scenes[0]
+        inputs.extend(["-loop", "1", "-t", str(durations[2]), "-i", str(s3)])
+        filter_parts.append(
+            f"[2:v]scale={w}:{h}:force_original_aspect_ratio=increase,crop={w}:{h},"
+            f"zoompan=z='min(zoom+0.0009,1.18)':d={int(durations[2]*fps)}:s={w}x{h}:fps={fps}[s2];"
+        )
+        
+        # Concatenate 3 camera movements
+        filter_parts.append("[s0][s1][s2]concat=n=3:v=1:a=0[base_video];")
+        
+        # Input 3: Floating Top Letter Badge PNG
+        inputs.extend(["-loop", "1", "-t", str(total_duration), "-i", str(badge_png)])
+        badge_x = "70"
+        badge_y = "55+12*sin(t*3.5)"
+        filter_parts.append(f"[base_video][3:v]overlay=x='{badge_x}':y='{badge_y}':shortest=1[video_with_badge];")
+        
+        # Input 4: Interactive Game Spotlight Pop-up (Active during Scene 2 Game at Line 5)
+        spot_start = round(voice_segs[5]["start"], 2)
+        spot_end = round(voice_segs[6]["start"] + 0.3, 2)
+        inputs.extend(["-loop", "1", "-t", str(total_duration), "-i", str(spotlight_png)])
+        spot_x = "(W-w)/2 + 20*sin(t*5)"
+        spot_y = "(H-h)/2 + 25*cos(t*4)"
+        filter_parts.append(
+            f"[video_with_badge][4:v]overlay=x='{spot_x}':y='{spot_y}':enable='between(t,{spot_start},{spot_end})':shortest=1[video_with_spotlight];"
+        )
+        
+        # Overlay Animated Subtitles
+        ass_escaped = str(ass_path).replace("\\", "/").replace(":", "\\:")
+        filter_parts.append(f"[video_with_spotlight]ass='{ass_escaped}'[vfinal]")
+        
+        # Input 5: Full Soundtrack (Voice + SFX + Music)
+        inputs.extend(["-i", str(final_audio)])
+        audio_idx = 5
     
     cmd = [
         ffmpeg_bin, "-y",
@@ -626,14 +695,15 @@ def main():
     parser.add_argument("--episode_dir", type=str, default="episodes/Ep_001_Letter_A")
     parser.add_argument("--format", type=str, choices=["landscape", "shorts", "both"], default="both")
     parser.add_argument("--theme", type=int, default=0, help="Subtitle & typography theme index (0-9)")
+    parser.add_argument("--engine", type=str, choices=["hyperframes", "ffmpeg"], default="hyperframes", help="Video compositor engine: hyperframes (60fps smooth web-standard animation) or ffmpeg (classic)")
     args = parser.parse_args()
     
     ep_path = BASE_DIR / args.episode_dir if not Path(args.episode_dir).is_absolute() else Path(args.episode_dir)
     
     if args.format in ["landscape", "both"]:
-        assemble_animated_video(ep_path, output_format="landscape", theme_index=args.theme)
+        assemble_animated_video(ep_path, output_format="landscape", theme_index=args.theme, engine=args.engine)
     if args.format in ["shorts", "both"]:
-        assemble_animated_video(ep_path, output_format="shorts", theme_index=args.theme)
+        assemble_animated_video(ep_path, output_format="shorts", theme_index=args.theme, engine=args.engine)
 
 if __name__ == "__main__":
     main()

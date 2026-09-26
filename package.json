@@ -1,0 +1,24 @@
+{
+  "name": "ai-video-automation-pipeline",
+  "version": "1.0.0",
+  "description": "[![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)](https://python.org) [![FFmpeg](https://img.shields.io/badge/FFmpeg-6.0+-007808?style=flat&logo=ffmpeg&logoColor=white)](https://ffmpeg.org) [![Edge-TTS](https://img.shields.io/badge/Edge--TTS-400+_Voices-0078D4?style=flat)](https://github.com/rany2/edge-tts) [![YouTube API](https://img.shields.io/badge/YouTube_API-v3_OAuth2-FF0000?style=flat&logo=youtube&logoColor=white)](https://developers.google.com/youtube/v3) [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mohit626689/youtube-automation-os.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/mohit626689/youtube-automation-os/issues"
+  },
+  "homepage": "https://github.com/mohit626689/youtube-automation-os#readme",
+  "dependencies": {
+    "hyperframes": "^0.8.78"
+  }
+}
