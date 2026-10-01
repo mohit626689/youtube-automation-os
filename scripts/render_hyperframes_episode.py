@@ -562,7 +562,6 @@ def render_episode_with_hyperframes(episode_dir, output_format="shorts", quality
     print(f"🚀 Rendering 60fps buttery-smooth video to: {out_video.name}...")
     render_cmd = [
         hf_bin, "render", str(hf_dir),
-        "--non-interactive",
         "--fps", str(fps),
         "--quality", quality,
         "-o", str(out_video)

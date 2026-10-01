@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/mohit626689/youtube-automation-os#readme",
   "dependencies": {
+    "css-tree": "^3.2.1",
     "hyperframes": "^0.8.78"
   }
 }

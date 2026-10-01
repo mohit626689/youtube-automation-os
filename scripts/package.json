@@ -20,6 +20,7 @@
   "license": "MIT",
   "type": "commonjs",
   "dependencies": {
-    "msedge-tts": "^2.0.7"
+    "msedge-tts": "^2.0.7",
+    "ws": "^8.22.0"
   }
 }
