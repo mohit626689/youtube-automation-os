@@ -34,7 +34,7 @@ def delete_youtube_video(access_token, video_id):
         print(f"⚠️ Failed to delete {video_id}: {e}")
         return False
 
-def replace_all_shorts():
+def replace_all_shorts(target_ids=None):
     state_file = BASE_DIR / "schedule_state.json"
     client_secrets = BASE_DIR / "client_secrets.json"
     token_file = BASE_DIR / "token.json"
@@ -44,10 +44,16 @@ def replace_all_shorts():
 
     access_token = get_oauth_tokens(str(client_secrets), str(token_file))
 
-    shorts_items = [
-        item for item in state["queue"]
-        if item["format"] == "shorts" and item["status"] in ("scheduled", "uploaded_unlisted") and item.get("youtube_id")
-    ]
+    if target_ids:
+        shorts_items = [
+            item for item in state["queue"]
+            if item["id"] in target_ids and item.get("youtube_id")
+        ]
+    else:
+        shorts_items = [
+            item for item in state["queue"]
+            if item["format"] == "shorts" and item["status"] in ("scheduled", "uploaded_unlisted") and item.get("youtube_id")
+        ]
 
     print(f"Found {len(shorts_items)} Shorts to replace with pristine 9:16 vertical videos.\n")
 
@@ -91,7 +97,13 @@ def replace_all_shorts():
         with open(state_file, "w", encoding="utf-8") as f:
             json.dump(state, f, indent=2)
 
-    print("🎉 All scheduled Shorts have been successfully replaced on YouTube!")
+    print("🎉 Replacement process complete on YouTube!")
 
 if __name__ == "__main__":
-    replace_all_shorts()
+    import argparse
+    parser = argparse.ArgumentParser(description="Replace YouTube Shorts with full-bleed 9:16 videos")
+    parser.add_argument("--ids", nargs="+", help="Specific video IDs from schedule_state.json, e.g. V030 V032")
+    parser.add_argument("--all", action="store_true", help="Replace all scheduled Shorts in queue")
+    args = parser.parse_args()
+
+    replace_all_shorts(target_ids=args.ids)
