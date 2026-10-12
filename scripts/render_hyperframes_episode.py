@@ -169,7 +169,7 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
     spot_repeats = max(1, int((spot_end - spot_start - 0.8) / 0.5))
 
     if is_shorts:
-        # Triple-Tier Smooth 9:16 Shorts Composition
+        # High-Impact 100% Full-Bleed 9:16 Shorts 2.0 Composition
         html_content = f"""<!doctype html>
 <html lang="en">
   <head>
@@ -180,75 +180,68 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
     <style>
       * {{ margin: 0; padding: 0; box-sizing: border-box; }}
       html, body {{
-        width: 1080px; height: 1920px; overflow: hidden; background: #0b0f19;
+        width: 1080px; height: 1920px; overflow: hidden; background: #000000;
         font-family: Inter, ui-sans-serif, system-ui, sans-serif;
       }}
       #root {{
         position: relative; width: 100%; height: 100%; overflow: hidden;
       }}
-      #ambient-bg {{
-        position: absolute; inset: -40px; overflow: hidden; filter: blur(35px) brightness(0.85) saturate(1.3);
-      }}
-      .ambient-img {{
-        position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0;
-      }}
-      #stage-card {{
-        position: absolute; top: 480px; left: 20px; width: 1040px; height: 585px;
-        border-radius: 32px; overflow: hidden;
-        border: 6px solid rgba(255, 255, 255, 0.95);
-        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 215, 0, 0.3);
-        background: #000;
+      /* Edge-to-Edge Full-Bleed Viewport */
+      #scene-stage {{
+        position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden;
       }}
       .stage-scene {{
-        position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0;
-        transform-origin: center center;
+        position: absolute; inset: 0; width: 100%; height: 100%;
+        object-fit: cover; object-position: center 32%;
+        opacity: 0; transform-origin: center 35%;
       }}
-      #header-banner {{
-        position: absolute; top: 160px; left: 0; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        text-align: center; z-index: 50;
-      }}
-      .header-title {{
-        font-size: 64px; font-weight: 900; color: #ffd700;
-        text-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 24px rgba(255, 215, 0, 0.5);
-        letter-spacing: 0.05em; text-transform: uppercase;
-      }}
-      .header-sub {{
-        font-size: 42px; font-weight: 700; color: #ffffff;
-        text-shadow: 0 3px 12px rgba(0, 0, 0, 0.8);
-        margin-top: 8px;
-      }}
+      /* Floating Mascot Badge in Top Safe Zone */
       #badge-card {{
-        position: absolute; top: 60px; left: 60px; z-index: 60;
+        position: absolute; top: 100px; left: 55px; z-index: 60;
       }}
-      .badge-img {{
-        width: 180px; height: auto; filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.5));
+      .badge-pill {{
+        background: linear-gradient(135deg, #ffd700, #ff9100);
+        border: 4.5px solid #ffffff;
+        border-radius: 9999px;
+        padding: 12px 36px;
+        color: #0d1b2a;
+        font-size: 38px;
+        font-weight: 900;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 215, 0, 0.45);
       }}
+      /* Interactive Game Spotlight */
+      #spotlight-layer {{
+        position: absolute; inset: 0;
+        display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 80;
+        opacity: 0;
+      }}
+      .spotlight-inner {{
+        width: 340px; height: auto; filter: drop-shadow(0 0 40px rgba(255, 215, 0, 0.95));
+      }}
+      /* Kinetic Subtitle Stream in Optical Safe Zone (Above YouTube UI) */
       #sub-container {{
-        position: absolute; top: 1250px; left: 0; width: 100%; height: 260px;
+        position: absolute; bottom: 400px; left: 0; width: 100%; height: 220px;
         display: flex; align-items: center; justify-content: center; z-index: 70;
+        pointer-events: none;
       }}
       .sub-pill {{
         position: absolute; width: 920px; display: flex; align-items: center; justify-content: center;
         opacity: 0;
       }}
       .sub-inner {{
-        background: rgba(13, 27, 42, 0.85);
-        border: 4px solid #ffd700;
-        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 215, 0, 0.35);
-        border-radius: 40px; padding: 24px 44px; text-align: center;
-        font-size: 48px; font-weight: 800; color: #ffffff;
-        line-height: 1.3;
+        background: rgba(13, 27, 42, 0.90);
+        backdrop-filter: blur(16px);
+        border: 4.5px solid #ffd700;
+        box-shadow: 0 16px 45px rgba(0, 0, 0, 0.75), 0 0 28px rgba(255, 215, 0, 0.45);
+        border-radius: 9999px; padding: 20px 48px; text-align: center;
+        font-size: 52px; font-weight: 900; color: #ffffff;
+        line-height: 1.25;
+        letter-spacing: -0.01em;
       }}
       .highlight {{
-        color: #00ffcc; text-shadow: 0 0 15px rgba(0, 255, 204, 0.8); font-weight: 900;
-      }}
-      #spotlight-layer {{
-        position: absolute; top: 480px; left: 20px; width: 1040px; height: 585px;
-        display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 80;
-        opacity: 0;
-      }}
-      .spotlight-inner {{
-        width: 280px; height: auto; filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.9));
+        color: #00ffcc; text-shadow: 0 0 18px rgba(0, 255, 204, 0.9); font-weight: 900;
       }}
     </style>
   </head>
@@ -261,29 +254,16 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
       data-width="1080"
       data-height="1920"
     >
-      <!-- Background Ambient Glow -->
-      <div id="ambient-bg">
-        <img id="amb-1" class="ambient-img" src="amb_01.jpg" alt="" />
-        <img id="amb-2" class="ambient-img" src="amb_02.jpg" alt="" />
-        <img id="amb-3" class="ambient-img" src="amb_03.jpg" alt="" />
-      </div>
-
-      <!-- Top Header Title Banner -->
-      <div id="header-banner">
-        <h1 class="header-title">LETTER {letter} PHONICS</h1>
-        <h2 class="header-sub">{char_name} the {animal_name} &amp; {obj_name}</h2>
-      </div>
-
-      <!-- Floating Mascot Badge -->
-      <div id="badge-card">
-        <img id="badge-img" class="badge-img" src="badge.png" alt="Badge" />
-      </div>
-
-      <!-- Center 16:9 Main Cinema Stage -->
-      <div id="stage-card">
+      <!-- Edge-to-Edge 100% Full-Bleed 9:16 Visual Stage -->
+      <div id="scene-stage">
         <img id="scene-1" class="stage-scene" src="scene_01.jpg" alt="Scene 1" />
         <img id="scene-2" class="stage-scene" src="scene_02.jpg" alt="Scene 2" />
         <img id="scene-3" class="stage-scene" src="scene_03.jpg" alt="Scene 3" />
+      </div>
+
+      <!-- Floating Mascot Badge in Top Safe Zone -->
+      <div id="badge-card">
+        <div class="badge-pill">LETTER {letter}</div>
       </div>
 
       <!-- Interactive Game Spotlight -->
@@ -291,7 +271,7 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
         <img id="spotlight-img" class="spotlight-inner" src="spotlight.png" alt="Spotlight" />
       </div>
 
-      <!-- Kinetic Subtitle Stream -->
+      <!-- Kinetic Subtitle Stream in Safe Zone -->
       <div id="sub-container">
 {chr(10).join(sub_elements_html)}
       </div>
@@ -303,42 +283,36 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
     <script>
       const tl = gsap.timeline({{ paused: true }});
 
-      // --- Scene 1 Motion ---
-      tl.set("#amb-1, #scene-1", {{ opacity: 1 }}, 0);
+      // --- Scene 1 Motion: Dramatic Push-In on 3D Mascot ---
+      tl.set("#scene-1", {{ opacity: 1, scale: 1.04 }}, 0);
       tl.fromTo("#scene-1", 
-        {{ scale: 1.0, transformOrigin: "center center" }},
-        {{ scale: 1.10, duration: {s1_dur}, ease: "power1.inOut" }}, 
+        {{ scale: 1.04, transformOrigin: "center 35%" }},
+        {{ scale: 1.20, duration: {s1_dur}, ease: "power1.inOut" }}, 
         0
       );
 
-      // --- Scene 2 Transition & Motion ---
-      tl.to("#amb-1, #scene-1", {{ opacity: 0, duration: 0.4, ease: "power2.inOut" }}, {s1_dur - 0.2});
-      tl.fromTo("#amb-2, #scene-2", 
-        {{ opacity: 0 }}, 
-        {{ opacity: 1, duration: 0.4, ease: "power2.inOut" }}, 
+      // --- Scene 2 Transition & Motion: Dynamic Parallax Squeeze ---
+      tl.to("#scene-1", {{ opacity: 0, duration: 0.4, ease: "power2.inOut" }}, {s1_dur - 0.2});
+      tl.fromTo("#scene-2", 
+        {{ opacity: 0, scale: 1.22, x: -15, transformOrigin: "center 35%" }}, 
+        {{ opacity: 1, scale: 1.10, x: 0, duration: 0.4, ease: "power2.inOut", immediateRender: false }}, 
         {s1_dur - 0.2}
       );
-      tl.fromTo("#scene-2",
-        {{ scale: 1.10, x: -10 }},
-        {{ scale: 1.0, x: 10, duration: {s2_dur}, ease: "power1.inOut" }},
+      tl.to("#scene-2",
+        {{ scale: 1.20, x: 15, duration: {s2_dur}, ease: "sine.inOut" }},
         {s1_dur}
       );
 
-      // --- Scene 3 Transition & Motion ---
-      tl.to("#amb-2, #scene-2", {{ opacity: 0, duration: 0.4, ease: "power2.inOut" }}, {s1_dur + s2_dur - 0.2});
-      tl.fromTo("#amb-3, #scene-3", 
-        {{ opacity: 0 }}, 
-        {{ opacity: 1, duration: 0.4, ease: "power2.inOut" }}, 
+      // --- Scene 3 Transition & Celebration Climax ---
+      tl.to("#scene-2", {{ opacity: 0, duration: 0.4, ease: "power2.inOut" }}, {s1_dur + s2_dur - 0.2});
+      tl.fromTo("#scene-3", 
+        {{ opacity: 0, scale: 1.05, transformOrigin: "center 35%" }}, 
+        {{ opacity: 1, scale: 1.24, duration: {s3_dur}, ease: "power1.out", immediateRender: false }}, 
         {s1_dur + s2_dur - 0.2}
-      );
-      tl.fromTo("#scene-3",
-        {{ scale: 1.0, y: 0 }},
-        {{ scale: 1.12, y: -8, duration: {s3_dur}, ease: "power1.out" }},
-        {s1_dur + s2_dur}
       );
 
       // --- Floating Badge Gentle Sine Float ---
-      tl.fromTo("#badge-img",
+      tl.fromTo("#badge-card",
         {{ y: -6, rotation: -2 }},
         {{ y: 6, rotation: 2, duration: 1.8, repeat: {badge_repeats}, yoyo: true, ease: "sine.inOut" }},
         0

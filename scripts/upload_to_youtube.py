@@ -413,14 +413,18 @@ def prepare_episode_metadata(episode_dir, format_type="landscape", privacy="unli
 
     is_shorts = (format_type == "shorts")
 
-    # vidIQ Score 96 Title Formula: Curiosity Question Hook + Target Phonics Keyword + Channel IP
+    # vidIQ Score 96 Title Formula & Feed-Optimized Shorts Metadata
     if is_shorts:
-        title = f"Can You Find the {obj_name}? 🎈 Letter {letter} Phonics Song #Shorts"
+        title = f"Can You Find the {obj_name}? 🎈 Letter {letter} #Shorts"
+        description = f"""Can you help {char_name} the {animal_name} find the {obj_name.lower()}? 🐾 Sing along and learn the Letter {letter} with ABC Zoo TV! ✨
+
+🔔 Subscribe to ABC Zoo TV for more fun phonics songs:
+https://www.youtube.com/@ABCZooTv?sub_confirmation=1
+
+#Shorts #ABCZooTV #Letter{letter} #Phonics #LearnABC #Preschool #KidsAnimation #ToddlerSongs #AlphabetSong"""
     else:
         title = f"Can You Find the {obj_name}? | Letter {letter} Phonics Lesson for Kids | ABC Zoo TV"
-
-    # vidIQ Score 96+ Description Structure (3 Rich Keyword Paragraphs + Timestamps + Lyrics)
-    description = f"""Join {char_name} the {animal_name} for a fun Letter {letter} adventure! Learn phonics with {obj_name.lower()} and songs in the ABC Zoo. 🐾🎈
+        description = f"""Join {char_name} the {animal_name} for a fun Letter {letter} adventure! Learn phonics with {obj_name.lower()} and songs in the ABC Zoo. 🐾🎈
 
 {char_name} the {animal_name} loves to play, and today {'she' if letter in ('A', 'C') else 'he'} is helping little ones discover the Letter {letter}. Through a cheerful phonics song, viewers practice the sound of the letter while searching for {obj_name.lower()} in the scene.
 
