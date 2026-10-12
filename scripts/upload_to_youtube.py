@@ -473,6 +473,24 @@ TIMESTAMPS:
         "3d animation kids"
     ]
 
+    # Check for custom metadata JSON
+    meta_files = list(episode_dir.glob("metadata_*.json"))
+    if meta_files:
+        try:
+            with open(meta_files[0], "r", encoding="utf-8") as mf:
+                custom_meta = json.load(mf)
+            if "title" in custom_meta:
+                if is_shorts and "title_shorts" in custom_meta:
+                    title = custom_meta["title_shorts"]
+                else:
+                    title = custom_meta["title"]
+                if "description" in custom_meta:
+                    description = custom_meta["description"]
+                if "tags" in custom_meta:
+                    tags = custom_meta["tags"]
+        except Exception:
+            pass
+
     return {
         "title": title[:100],
         "description": description,

@@ -35,6 +35,12 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
     m = re.search(r"Letter_([A-Z])", str(episode_dir), re.IGNORECASE)
     letter = m.group(1).upper() if m else "A"
     
+    badge_text_file = episode_dir / "badge_text.txt"
+    if badge_text_file.exists():
+        badge_text = badge_text_file.read_text(encoding="utf-8").strip()
+    else:
+        badge_text = f"LETTER {letter}"
+    
     config_path = BASE_DIR / "pipeline_config.json"
     char_name, animal_name, obj_name = "Allie", "Alligator", "Apple"
     next_char, next_letter = "Barnaby", "B"
@@ -263,7 +269,7 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
 
       <!-- Floating Mascot Badge in Top Safe Zone -->
       <div id="badge-card">
-        <div class="badge-pill">LETTER {letter}</div>
+        <div class="badge-pill">{badge_text}</div>
       </div>
 
       <!-- Interactive Game Spotlight -->
@@ -375,6 +381,18 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
       .badge-img {{
         width: 220px; height: auto; filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.6));
       }}
+      .badge-pill {{
+        background: linear-gradient(135deg, #ffd700, #ff9100);
+        border: 4px solid #ffffff;
+        border-radius: 9999px;
+        padding: 12px 38px;
+        color: #0d1b2a;
+        font-size: 32px;
+        font-weight: 900;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 25px rgba(255, 215, 0, 0.45);
+      }}
       #sub-container {{
         position: absolute; bottom: 85px; left: 0; width: 100%; height: 180px;
         display: flex; align-items: center; justify-content: center; z-index: 70;
@@ -421,7 +439,7 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
 
       <!-- Floating Mascot Badge -->
       <div id="badge-card">
-        <img id="badge-img" class="badge-img" src="badge.png" alt="Badge" />
+        {f'<img id="badge-img" class="badge-img" src="badge.png" alt="Badge" />' if (hf_dir / "badge.png").exists() else f'<div class="badge-pill">{badge_text}</div>'}
       </div>
 
       <!-- Interactive Game Spotlight -->
