@@ -284,6 +284,23 @@ def synthesize_kid_voiceover(lines, work_dir, voice="en-US-AnaNeural"):
         
         current_cursor = seg_end + gap
         
+    timeline_file = Path(work_dir) / "voice_timeline.json"
+    try:
+        with open(timeline_file, "w", encoding="utf-8") as tf:
+            json.dump([
+                {
+                    "index": s["index"],
+                    "text": s["text"],
+                    "start": s["start"],
+                    "duration": s["duration"],
+                    "end": s["end"],
+                    "wav_path": str(s["wav_path"])
+                } for s in segments
+            ], tf, indent=2)
+        print(f"💾 Saved accurate voice timeline to: {timeline_file.name}")
+    except Exception as e:
+        print(f"Warning: Could not save voice_timeline.json: {e}")
+        
     print(f"✨ Loaded {len(segments)} studio neural child voice segments (en-US-AnaNeural)!")
     for s in segments:
         print(f"   Line {s['index']}: [{s['start']:.2f}s -> {s['end']:.2f}s] ({s['duration']:.2f}s) \"{s['text']}\"")

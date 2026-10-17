@@ -189,6 +189,21 @@ def render_episode(spec):
         })
         current_cursor = seg_end + gap
 
+    # Save exact voice_timeline.json for HyperFrames compositing
+    timeline_file = ep_dir / "voice_timeline.json"
+    with open(timeline_file, "w", encoding="utf-8") as tf:
+        json.dump([
+            {
+                "index": s["index"],
+                "text": s["text"],
+                "start": s["start"],
+                "duration": s["duration"],
+                "end": s["end"],
+                "wav_path": str(s["wav_path"])
+            } for s in segments
+        ], tf, indent=2)
+    print(f"💾 Saved calibrated voice timeline to {timeline_file.name}")
+
     total_duration = round(segments[-1]["end"] + 2.2, 2)
     print(f"⏱️ Episode duration: {total_duration:.2f}s")
 

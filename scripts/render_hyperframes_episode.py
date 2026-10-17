@@ -24,6 +24,84 @@ def check_hyperframes():
         return system_bin
     raise RuntimeError("HyperFrames CLI not found in node_modules or PATH.")
 
+def get_accurate_voice_timeline(episode_dir):
+    """
+    Loads or dynamically probes the accurate audio timeline for voiceover segments,
+    guaranteeing 100% synchronization between speech, subtitles, scene cuts, and game spotlights.
+    """
+    episode_dir = Path(episode_dir)
+    timeline_file = episode_dir / "voice_timeline.json"
+    if timeline_file.exists():
+        try:
+            with open(timeline_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            if len(data) > 1 and data[1].get("start", 0) > 0 and data[0].get("end", 0) > 0:
+                return data
+        except Exception:
+            pass
+
+    neural_dir = episode_dir / "neural_vocals"
+    manifest_file = neural_dir / "voice_manifest.json"
+    manifest_texts = {}
+    if manifest_file.exists():
+        try:
+            with open(manifest_file, "r", encoding="utf-8") as mf:
+                m_data = json.load(mf)
+                for item in m_data:
+                    manifest_texts[item["index"]] = item["text"]
+        except Exception:
+            pass
+
+    lines_file = episode_dir / "lines.json"
+    if lines_file.exists() and not manifest_texts:
+        try:
+            with open(lines_file, "r", encoding="utf-8") as lf:
+                lines_data = json.load(lf)
+                for idx, l in enumerate(lines_data):
+                    manifest_texts[idx] = l if isinstance(l, str) else l.get("text", "")
+        except Exception:
+            pass
+
+    audio_segs = sorted(list(neural_dir.glob("ana_seg_*.mp3")), key=lambda p: int(p.stem.split("_")[-1]))
+    if not audio_segs:
+        audio_segs = sorted(list(episode_dir.glob("voice_seg_*.wav")), key=lambda p: int(p.stem.split("_")[-1]))
+
+    if not audio_segs:
+        raise FileNotFoundError(f"No voice segment audio files found in {neural_dir} or {episode_dir}")
+
+    ffprobe = shutil.which("ffprobe")
+    segments = []
+    current_cursor = 0.35  # Clean 0.35s opening breath
+    for i, audio_path in enumerate(audio_segs):
+        res = subprocess.run([
+            ffprobe, "-v", "error", "-show_entries", "format=duration", "-of", "json", str(audio_path)
+        ], capture_output=True, text=True, check=True)
+        dur = float(json.loads(res.stdout)["format"]["duration"])
+        text = manifest_texts.get(i, f"Line {i}")
+        
+        seg_start = round(current_cursor, 3)
+        seg_end = round(seg_start + dur, 3)
+        
+        gap = 1.35 if i == 5 else (0.75 if i in (1, 2) else 0.60)
+        segments.append({
+            "index": i,
+            "text": text,
+            "start": seg_start,
+            "duration": dur,
+            "end": seg_end,
+            "wav_path": str(audio_path)
+        })
+        current_cursor = seg_end + gap
+
+    try:
+        with open(timeline_file, "w", encoding="utf-8") as f:
+            json.dump(segments, f, indent=2)
+        print(f"💾 Saved calibrated voice timeline to {timeline_file.name}")
+    except Exception:
+        pass
+
+    return segments
+
 def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_index=0):
     episode_dir = Path(episode_dir)
     is_shorts = (output_format == "shorts")
@@ -71,23 +149,8 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
     if not scenes:
         raise FileNotFoundError(f"No scene images found in {episode_dir}")
     
-    # 3. Load Voice Manifest or calculate from segments
-    voice_manifest = episode_dir / "neural_vocals" / "voice_manifest.json"
-    if voice_manifest.exists():
-        with open(voice_manifest, "r", encoding="utf-8") as f:
-            voice_segs = json.load(f)
-    else:
-        # Fallback to standard timeline
-        voice_segs = [
-            {"index": 0, "text": f"Hi friends! I am {char_name} the {animal_name}!", "start": 0.2, "end": 2.8},
-            {"index": 1, "text": f"Look what I found... It is the Letter {letter}!", "start": 3.2, "end": 6.2},
-            {"index": 2, "text": f"Can you say {letter} with me? {letter}! {letter}! {obj_name}!", "start": 6.8, "end": 10.2},
-            {"index": 3, "text": f"{letter} is for {char_name}, playing every day!", "start": 10.8, "end": 13.8},
-            {"index": 4, "text": f"{letter} is for {obj_name}, hip hip hooray!", "start": 14.2, "end": 17.0},
-            {"index": 5, "text": f"Can you find the {obj_name.lower()}? Point to it!", "start": 17.5, "end": 20.2},
-            {"index": 6, "text": f"You found it! Good job! High five!", "start": 20.8, "end": 23.2},
-            {"index": 7, "text": f"See you next time with {next_char}! Bye-bye!", "start": 23.8, "end": 26.5}
-        ]
+    # 3. Load accurate voice timeline with dynamic sequential timestamps
+    voice_segs = get_accurate_voice_timeline(episode_dir)
         
     # Get audio file and total duration
     audio_file = episode_dir / "soundtrack_with_vocals.wav"
@@ -147,15 +210,17 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
     sub_elements_html = []
     sub_animations_js = []
     for i, seg in enumerate(voice_segs):
-        st = seg["start"]
-        et = voice_segs[i+1]["start"] - 0.15 if i+1 < len(voice_segs) else total_duration - 0.5
+        st = round(seg["start"], 2)
+        speech_end = round(seg.get("end", st + seg.get("duration", 3.0)), 2)
+        next_st = round(voice_segs[i+1]["start"], 2) if i+1 < len(voice_segs) else total_duration - 0.4
+        et = round(min(speech_end + 0.35, next_st - 0.10), 2)
         text = seg["text"]
         
-        # Color highlight
+        # Safe color highlight (word boundary only, avoiding HTML corruption)
         display_text = text
-        for kw in [f"Letter {letter}", letter, char_name, obj_name]:
-            if kw in display_text:
-                display_text = display_text.replace(kw, f'<span class="highlight">{kw}</span>')
+        for kw in [f"Letter {letter}", char_name, obj_name]:
+            if kw and len(kw) > 1 and kw in display_text:
+                display_text = re.sub(r'\b' + re.escape(kw) + r'\b', f'<span class="highlight">{kw}</span>', display_text)
                 
         sub_elements_html.append(
             f'        <div id="sub-{i}" class="sub-pill">\n'
@@ -163,14 +228,15 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
             f'        </div>'
         )
         
+        fade_out_time = round(max(st + 0.3, et - 0.2), 2)
         sub_animations_js.append(
-            f'      // Subtitle {i}\n'
-            f'      tl.fromTo("#sub-{i}", {{ opacity: 0, y: 15, scale: 0.85 }}, {{ opacity: 1, y: 0, scale: 1, duration: 0.35, ease: "back.out(2)" }}, {st});\n'
-            f'      tl.to("#sub-{i}", {{ opacity: 0, y: -10, duration: 0.2, ease: "power2.in" }}, {et - 0.2});'
+            f'      // Subtitle {i} (Speech: {st}s -> {speech_end}s, Display: {st}s -> {et}s)\n'
+            f'      tl.fromTo("#sub-{i}", {{ opacity: 0, y: 15, scale: 0.88 }}, {{ opacity: 1, y: 0, scale: 1, duration: 0.25, ease: "back.out(2)" }}, {st});\n'
+            f'      tl.to("#sub-{i}", {{ opacity: 0, y: -10, duration: 0.2, ease: "power2.in" }}, {fade_out_time});'
         )
 
-    spot_start = round(voice_segs[5]["start"], 2)
-    spot_end = round(voice_segs[6]["start"] + 0.3, 2)
+    spot_start = round(voice_segs[5]["start"], 2) if len(voice_segs) > 5 else round(total_duration * 0.6, 2)
+    spot_end = round(voice_segs[6]["start"] + 0.25, 2) if len(voice_segs) > 6 else round(spot_start + 4.0, 2)
     badge_repeats = int(total_duration / 2.0) + 1
     spot_repeats = max(1, int((spot_end - spot_start - 0.8) / 0.5))
 
@@ -460,7 +526,9 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
       const tl = gsap.timeline({{ paused: true }});
 
       // --- Scene 1 Motion ---
-      tl.set("#scene-1", {{ opacity: 1 }}, 0);
+      tl.set("#scene-1", {{ opacity: 1, scale: 1.0 }}, 0);
+      tl.set("#scene-2", {{ opacity: 0 }}, 0);
+      tl.set("#scene-3", {{ opacity: 0 }}, 0);
       tl.fromTo("#scene-1", 
         {{ scale: 1.0, transformOrigin: "center center" }},
         {{ scale: 1.12, duration: {s1_dur}, ease: "power1.inOut" }}, 
@@ -471,12 +539,12 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
       tl.to("#scene-1", {{ opacity: 0, duration: 0.4, ease: "power2.inOut" }}, {s1_dur - 0.2});
       tl.fromTo("#scene-2", 
         {{ opacity: 0 }}, 
-        {{ opacity: 1, duration: 0.4, ease: "power2.inOut" }}, 
+        {{ opacity: 1, duration: 0.4, ease: "power2.inOut", immediateRender: false }}, 
         {s1_dur - 0.2}
       );
       tl.fromTo("#scene-2",
         {{ scale: 1.12, x: -15 }},
-        {{ scale: 1.0, x: 15, duration: {s2_dur}, ease: "power1.inOut" }},
+        {{ scale: 1.0, x: 15, duration: {s2_dur}, ease: "power1.inOut", immediateRender: false }},
         {s1_dur}
       );
 
@@ -484,17 +552,17 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
       tl.to("#scene-2", {{ opacity: 0, duration: 0.4, ease: "power2.inOut" }}, {s1_dur + s2_dur - 0.2});
       tl.fromTo("#scene-3", 
         {{ opacity: 0 }}, 
-        {{ opacity: 1, duration: 0.4, ease: "power2.inOut" }}, 
+        {{ opacity: 1, duration: 0.4, ease: "power2.inOut", immediateRender: false }}, 
         {s1_dur + s2_dur - 0.2}
       );
       tl.fromTo("#scene-3",
         {{ scale: 1.0, y: 0 }},
-        {{ scale: 1.15, y: -12, duration: {s3_dur}, ease: "power1.out" }},
+        {{ scale: 1.15, y: -12, duration: {s3_dur}, ease: "power1.out", immediateRender: false }},
         {s1_dur + s2_dur}
       );
 
       // --- Floating Badge Sine Float ---
-      tl.fromTo("#badge-img",
+      tl.fromTo("#badge-card",
         {{ y: -8, rotation: -2.5 }},
         {{ y: 8, rotation: 2.5, duration: 2.0, repeat: {badge_repeats}, yoyo: true, ease: "sine.inOut" }},
         0
