@@ -137,12 +137,19 @@ def generate_hyperframes_composition(episode_dir, output_format="shorts", theme_
                 if next_letter in cfg["characters"]:
                     next_char = cfg["characters"][next_letter]["name"]
 
-    # 2. Get Scenes
-    scenes = [
-        episode_dir / "scene_01_hook.jpg",
-        episode_dir / "scene_02_dancing.jpg",
-        episode_dir / "scene_03_celebration.jpg"
-    ]
+    # 2. Get Scenes (prefer native 9:16 portraits if available for shorts)
+    if is_shorts and (episode_dir / "shorts_scene_01.jpg").exists():
+        scenes = [
+            episode_dir / "shorts_scene_01.jpg",
+            episode_dir / "shorts_scene_02.jpg",
+            episode_dir / "shorts_scene_03.jpg"
+        ]
+    else:
+        scenes = [
+            episode_dir / "scene_01_hook.jpg",
+            episode_dir / "scene_02_dancing.jpg",
+            episode_dir / "scene_03_celebration.jpg"
+        ]
     scenes = [s for s in scenes if s.exists()]
     if not scenes:
         scenes = list(episode_dir.glob("scene_*.jpg"))
